@@ -1,0 +1,495 @@
+Register Page
+
+
+
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+class RegisterPage extends StatefulWidget {
+  @override
+  _RegisterPageState createState() => _RegisterPageState();
+}
+a
+class _RegisterPageState extends State<RegisterPage> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+
+  bool _isLoading = false;
+
+  Future<void> _register() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      // API URL (replace with your API endpoint)
+      var url = Uri.parse('http://handymanexpert.hirenow.co.in/api/register');
+
+      // Request body
+      var body = jsonEncode({
+        'email': _emailController.text,
+        'username': _usernameController.text,
+        'password': _passwordController.text,
+        'first_name': _firstNameController.text,
+        'last_name': _lastNameController.text,
+      });
+
+      try {
+        var response = await http.post(
+          url,
+          headers: {'Content-Type': 'application/json'},
+          body: body,
+        );
+
+        if (response.statusCode == 200) {
+          var data = jsonDecode(response.body);
+          // Handle successful registration
+          print('Registration successful: $data');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Registration successful!')),
+          );
+        } else {
+          // Handle errors
+          print('Registration failed: ${response.body}');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Registration failed. Please try again.')),
+          );
+        }
+      } catch (e) {
+        print('Error: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('An error occurred. Please try again.')),
+        );
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Register'),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: _emailController,
+                  decoration: InputDecoration(labelText: 'Email'),
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your email';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _usernameController,
+                  decoration: InputDecoration(labelText: 'Username'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your username';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _passwordController,
+                  decoration: InputDecoration(labelText: 'Password'),
+                  obscureText: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your password';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _firstNameController,
+                  decoration: InputDecoration(labelText: 'First Name'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your first name';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _lastNameController,
+                  decoration: InputDecoration(labelText: 'Last Name'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your last name';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 20),
+                _isLoading
+                    ? CircularProgressIndicator()
+                    : ElevatedButton(
+                  onPressed: _register,
+                  child: Text('Register'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+-----------------------------------------------------------------------------------
+
+
+Login page
+
+
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+import 'package:untitled2/home_screen.dart';
+import 'package:untitled2/register.dart';
+
+class LoginPage extends StatefulWidget {
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  bool _isLoading = false;
+
+  Future<void> _login() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      // API URL (replace with your actual API endpoint)
+      var url = Uri.parse('http://handymanexpert.hirenow.co.in/api/login');
+
+      // Request body
+      var body = jsonEncode({
+        'email': _emailController.text,
+        'password': _passwordController.text,
+      });
+
+      try {
+        var response = await http.post(
+          url,
+          headers: {'Content-Type': 'application/json'},
+          body: body,
+        );
+
+        if (response.statusCode == 200) {
+          var data = jsonDecode(response.body);
+          // Handle successful login, you can navigate to another screen or save user data
+          print('Login successful: $data');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Login successful!')),
+          );
+          Navigator.push(context,MaterialPageRoute(builder: (context) =>ProductPage()));
+
+          // Navigate to Home Page or save data in SharedPreferences
+        } else {
+          // Handle errors
+          print('Login failed: ${response.body}');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Login failed. Please check your credentials.')),
+          );
+        }
+      } catch (e) {
+        print('Error: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('An error occurred. Please try again.')),
+        );
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Login'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _emailController,
+                decoration: InputDecoration(labelText: 'Email'),
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _passwordController,
+                decoration: InputDecoration(labelText: 'Password'),
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your password';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 20),
+              _isLoading
+                  ? CircularProgressIndicator()
+                  : ElevatedButton(
+                onPressed: _login,
+                child: Text('Login'),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              ElevatedButton(onPressed: () {
+                Navigator.push(context,MaterialPageRoute(builder: (context) =>RegisterPage()));
+
+              }, child: Text("register"))
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+
+----------------------------------------------------------------------------------------------------
+
+
+product category
+
+
+
+
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+class ProductPage extends StatefulWidget {
+  @override
+  _ProductPageState createState() => _ProductPageState();
+}
+
+class _ProductPageState extends State<ProductPage> {
+  Productmodel? productModel;
+
+  @override
+  void initState() {
+    super.initState();
+    loadProductData();
+  }
+
+  Future<void> loadProductData() async {
+    Productmodel? data = await fetchProductData();
+    setState(() {
+      productModel = data;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Products')),
+      body: productModel == null
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
+        itemCount: productModel!.data!.length,
+        itemBuilder: (context, index) {
+          final product = productModel!.data![index];
+          return Card(
+            child: ListTile(
+              title: Text(product.name ?? 'No Name'),
+              leading: Image.network(product.categoryImage ?? 'https://via.placeholder.com/150'),
+              subtitle: Text(product.description ?? 'No Description'),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class Productmodel {
+  List<ProductData>? data;
+
+  Productmodel({this.data});
+
+  factory Productmodel.fromJson(Map<String, dynamic> json) {
+    return Productmodel(
+      data: List<ProductData>.from(json['data'].map((x) => ProductData.fromJson(x))),
+    );
+  }
+}
+
+class ProductData {
+  String? name;
+  String? categoryImage;
+  String? description;
+
+  ProductData({this.name, this.categoryImage, this.description});
+
+  factory ProductData.fromJson(Map<String, dynamic> json) {
+    return ProductData(
+      name: json['name'],
+      categoryImage: json['category_image'],
+      description: json['description'],
+    );
+  }
+}
+
+Future<Productmodel?> fetchProductData() async {
+  final String apiUrl = 'http://urbanflowservice.hirenow.co.in/api/category-list'; // Replace with your actual API URL
+
+  try {
+    final response = await http.get(Uri.parse(apiUrl));
+
+    if (response.statusCode == 200) {
+      // If the server returns a successful response
+      final jsonResponse = json.decode(response.body);
+      return Productmodel.fromJson(jsonResponse);
+    } else {
+      // If the server did not return a 200 OK response
+      print('Failed to load products');
+      return null;
+    }
+  } catch (e) {
+    // If there is an error in fetching data
+    print('Error: $e');
+    return null;
+  }
+}
+
+
+
+
+--------------------------------------------------------------------------------------------
+
+product category
+
+0r api call other page
+
+
+import 'package:flutter/material.dart';
+import 'package:untitled2/api.dart';
+import 'Productmodel.dart';
+
+class ProductPage extends StatefulWidget {
+  @override
+  _ProductPageState createState() => _ProductPageState();
+}
+
+class _ProductPageState extends State<ProductPage> {
+  Productmodel? productModel;
+
+  @override
+  void initState() {
+    super.initState();
+    loadProductData();
+  }
+
+  Future<void> loadProductData() async {
+    Productmodel? data = await fetchProductData();
+    setState(() {
+      productModel = data;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Products')),
+      body: productModel == null
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
+        itemCount: productModel!.data!.length,
+        itemBuilder: (context, index) {
+          final product = productModel!.data![index];
+          return Card(
+            child: ListTile(
+              title: Text(product.name ?? 'No Name'),
+              leading: Image.network(product.categoryImage ?? 'image'),
+              subtitle: Text(product.description ?? 'No Description'),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+
+----> api call page code 
+
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+import 'Productmodel.dart';
+
+Future<Productmodel?> fetchProductData() async {
+  final String apiUrl = 'http://urbanflowservice.hirenow.co.in/api/category-list'; // Replace with your actual API URL
+
+  try {
+    final response = await http.get(Uri.parse(apiUrl));
+
+    if (response.statusCode == 200) {
+      // If the server returns a successful response
+      final jsonResponse = json.decode(response.body);
+      return Productmodel.fromJson(jsonResponse);
+    } else {
+      // If the server did not return a 200 OK response
+      print('Failed to load products');
+      return null;
+    }
+  } catch (e) {
+    // If there is an error in fetching data
+    print('Error: $e');
+    return null;
+  }
+}
